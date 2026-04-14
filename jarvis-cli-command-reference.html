@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis CLI Command Reference — Arc Reactor Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #08090d;
+            --bg-card: #0c0e14;
+            --bg-card-hover: #11131a;
+            --bg-elevated: #0f1117;
+            --bg-code: #060810;
+            --gold: #ffb86a;
+            --gold-soft: #ffc978;
+            --gold-dim: rgba(255,184,106,0.10);
+            --gold-glow: rgba(255,184,106,0.15);
+            --gold-strong: rgba(255,184,106,0.28);
+            --core-white: #fff4db;
+            --core-warm: #ffd7a3;
+            --blue-ghost: #3d5060;
+            --blue-ghost-dim: rgba(61,80,96,0.08);
+            --blue-faint: rgba(80,110,130,0.06);
+            --green: #5ce0a0;
+            --green-dim: rgba(92,224,160,0.08);
+            --red: #f06060;
+            --red-dim: rgba(240,96,96,0.06);
+            --yellow: #f0d060;
+            --yellow-dim: rgba(240,208,96,0.08);
+            --text: #b8bfc8;
+            --text-bright: #dce0e6;
+            --text-dim: #5a6370;
+            --text-faint: #3a4250;
+            --border: rgba(255,255,255,0.05);
+            --border-gold: rgba(255,184,106,0.10);
+            --border-subtle: rgba(255,255,255,0.03);
+            --radius: 8px;
+            --shadow: 0 2px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 30px rgba(255,184,106,0.04);
+            --font-display: 'Orbitron', monospace;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 800px;
+            background: radial-gradient(ellipse 900px 600px at center, rgba(255,184,106,0.08) 0%, rgba(255,184,106,0.02) 40%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container { display: flex; min-height: 100vh; position: relative; z-index: 2; }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: 260px;
+            height: 100vh;
+            background: rgba(8,9,13,0.97);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 24px 0;
+            z-index: 100;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--blue-ghost-dim); border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: var(--blue-ghost); }
+
+        .sidebar-header {
+            padding: 0 20px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-family: var(--font-display);
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--core-white);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .sidebar-header p {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav { list-style: none; }
+        .sidebar-nav li { margin: 2px 0; }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: var(--gold-dim);
+            color: var(--core-warm);
+            border-left-color: var(--gold);
+        }
+
+        .nav-section {
+            font-family: var(--font-display);
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            padding: 16px 20px 6px;
+            font-weight: 600;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            background: var(--bg);
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg) 100%);
+            border-bottom: 2px solid var(--border-gold);
+            padding: 60px 40px 50px;
+            overflow: hidden;
+        }
+
+        .hero-content { position: relative; z-index: 10; max-width: 800px; }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--core-white);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(255,184,106,0.15);
+        }
+
+        .hero .subtitle {
+            font-size: 16px;
+            color: var(--core-warm);
+            letter-spacing: 2px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .hero .desc {
+            font-size: 14px;
+            color: var(--text-dim);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: var(--gold-dim);
+            border: 1px solid var(--core-warm);
+            color: var(--core-warm);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+            max-width: 600px;
+        }
+
+        .meta-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: var(--radius);
+        }
+
+        .meta-item .label {
+            color: var(--text-faint);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .meta-item .value {
+            color: var(--core-warm);
+            font-family: var(--font-code);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 50px 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        section { margin-bottom: 60px; }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--core-warm);
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--gold), transparent) 1;
+        }
+
+        h3 {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--gold-soft);
+            text-transform: uppercase;
+            margin-top: 28px;
+            margin-bottom: 14px;
+        }
+
+        p { margin-bottom: 14px; line-height: 1.7; font-size: 14px; }
+        strong { color: var(--core-warm); font-weight: 600; }
+
+        /* COMMAND CARDS */
+        .cmd-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .cmd-card:hover {
+            border-color: var(--border-gold);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .cmd-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .cmd-label {
+            font-size: 12px;
+            color: var(--core-warm);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .cmd-tag {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .tag-check { background: var(--green-dim); color: var(--green); border: 1px solid rgba(92,224,160,0.15); }
+        .tag-action { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,184,106,0.15); }
+        .tag-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(240,96,96,0.15); }
+        .tag-info { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(240,208,96,0.15); }
+
+        .cmd-body { padding: 0; }
+
+        .cmd-body pre {
+            background: var(--bg-code);
+            border: none;
+            border-radius: 0;
+            padding: 16px 20px;
+            margin: 0;
+            font-family: var(--font-code);
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+            overflow-x: auto;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cmd-body pre:hover { background: #080a12; }
+
+        .cmd-body pre::after {
+            content: 'CLICK TO COPY';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: var(--text-faint);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .cmd-body pre:hover::after { opacity: 1; }
+        .cmd-body pre.copied::after { content: 'COPIED'; color: var(--green); opacity: 1; }
+
+        .cmd-note {
+            padding: 10px 20px;
+            font-size: 12px;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border-subtle);
+            line-height: 1.5;
+        }
+
+        code {
+            color: var(--core-warm);
+            background: var(--bg-code);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: var(--font-code);
+        }
+
+        /* CALLOUTS */
+        .callout {
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            margin: 20px 0;
+            border-left: 4px solid;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .callout-warning { background: rgba(255,184,106,0.03); border-left-color: var(--gold); }
+        .callout-danger { background: rgba(240,96,96,0.02); border-left-color: var(--red); }
+        .callout-success { background: rgba(92,224,160,0.02); border-left-color: var(--green); }
+
+        /* CONFIG TABLE */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+
+        .config-table th {
+            text-align: left;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            color: var(--text-faint);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .config-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text);
+        }
+
+        .config-table td:first-child {
+            font-family: var(--font-code);
+            color: var(--core-warm);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .config-table tr:hover td { background: var(--bg-card); }
+
+        /* SEARCH */
+        .search-bar {
+            padding: 20px 40px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--core-warm);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .search-bar input::placeholder { color: var(--text-dim); }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        footer p {
+            color: var(--text-faint);
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--blue-ghost-dim); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--blue-ghost); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>CLI Reference</h1>
+                <p>Arc Reactor Operations</p>
+            </div>
+            <ul class="sidebar-nav">
+                <div class="nav-section">Quick Access</div>
+                <li><a href="#services" class="active">Service Control</a></li>
+                <li><a href="#openclaw">OpenClaw CLI</a></li>
+                <li><a href="#hermes">Hermes</a></li>
+                <li><a href="#ollama">Ollama</a></li>
+                <li><a href="#n8n">n8n Workflows</a></li>
+                <div class="nav-section">Diagnostics</div>
+                <li><a href="#logs">Logs &amp; Debugging</a></li>
+                <li><a href="#health">Health Checks</a></li>
+                <li><a href="#monitoring">Monitoring</a></li>
+                <div class="nav-section">Reference</div>
+                <li><a href="#configs">Config Locations</a></li>
+                <li><a href="#emergency">Emergency Procedures</a></li>
+                <li><a href="#upgrade">Upgrade Guide</a></li>
+            </ul>
+        </nav>
+
+        <div class="main">
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="version-badge">v1.0 — April 2026</div>
+                    <h1>CLI Command Reference</h1>
+                    <p class="subtitle">When Jarvis pisses you off, take the wheel.</p>
+                    <p class="desc">Every command you need to diagnose, fix, restart, and control your Arc Reactor stack directly from Terminal. No bots required.</p>
+                    <div class="hero-meta">
+                        <div class="meta-item">
+                            <div class="label">Platform</div>
+                            <div class="value">Mac Studio M4 Max</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Services</div>
+                            <div class="value">6 Active</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Last Updated</div>
+                            <div class="value">2026-04-13</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search commands... (e.g. restart, logs, ollama)" oninput="filterCommands(this.value)">
+            </div>
+
+            <div class="content" id="mainContent">
+
+                <!-- ==================== SERVICE CONTROL ==================== -->
+                <section id="services">
+                    <h2>Service Control (launchd)</h2>
+                    <p>Every Jarvis service runs as a <strong>launchd agent</strong>. These are your kill switches.</p>
+
+                    <h3>Check Status</h3>
+                    <div class="cmd-card" data-search="status check running openclaw jarvis">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Is OpenClaw running?</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl print gui/$(id -u)/com.jarvis.openclaw-gateway | head -5</pre>
+                        </div>
+                        <div class="cmd-note">Look for <code>state = running</code> and a fresh PID</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="status check running hermes">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Is Hermes running?</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl print gui/$(id -u)/ai.hermes.gateway | head -5</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="list all services jarvis hermes watchdog">
+                        <div class="cmd-header">
+                            <span class="cmd-label">List ALL Jarvis services</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl print gui/$(id -u) | grep -i -E "jarvis|hermes|openclaw|watchdog"</pre>
+                        </div>
+                    </div>
+
+                    <h3>Restart Services</h3>
+                    <div class="cmd-card" data-search="restart openclaw jarvis reboot">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Restart OpenClaw (Jarvis)</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl kickstart -k gui/$(id -u)/com.jarvis.openclaw-gateway</pre>
+                        </div>
+                        <div class="cmd-note">No output = success. Check status after to confirm new PID.</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="restart hermes reboot">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Restart Hermes</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl kickstart -k gui/$(id -u)/ai.hermes.gateway</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="restart all everything nuclear">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Restart EVERYTHING</span>
+                            <span class="cmd-tag tag-danger">Nuclear</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl kickstart -k gui/$(id -u)/com.jarvis.openclaw-gateway && \
+launchctl kickstart -k gui/$(id -u)/ai.hermes.gateway && \
+launchctl kickstart -k gui/$(id -u)/com.jarvis.watchdog-hermes && \
+launchctl kickstart -k gui/$(id -u)/com.jarvis.watchdog-openclaw && \
+echo "All services restarted"</pre>
+                        </div>
+                    </div>
+
+                    <h3>Stop / Start</h3>
+                    <div class="cmd-card" data-search="stop kill openclaw">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Stop OpenClaw</span>
+                            <span class="cmd-tag tag-danger">Stop</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl kill SIGTERM gui/$(id -u)/com.jarvis.openclaw-gateway</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="start boot load openclaw">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Start OpenClaw (from stopped)</span>
+                            <span class="cmd-tag tag-action">Start</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.jarvis.openclaw-gateway.plist</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== OPENCLAW CLI ==================== -->
+                <section id="openclaw">
+                    <h2>OpenClaw CLI</h2>
+                    <p>Direct access to OpenClaw's command-line interface — bypass Discord entirely.</p>
+
+                    <div class="cmd-card" data-search="version openclaw">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Check version</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">openclaw --version</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="help openclaw commands">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Show all CLI commands</span>
+                            <span class="cmd-tag tag-info">Info</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">openclaw --help</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="config view openclaw json plugins memory model">
+                        <div class="cmd-header">
+                            <span class="cmd-label">View current config (formatted)</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">cat ~/.openclaw/openclaw.json | python3 -m json.tool</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="edit config openclaw nano modify change">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Edit config directly</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">nano ~/.openclaw/openclaw.json</pre>
+                        </div>
+                        <div class="cmd-note">After editing, restart OpenClaw to apply changes.</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="exec policy execution tool configuration">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Execution policy (v2026.4.12+)</span>
+                            <span class="cmd-tag tag-info">Info</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">openclaw exec-policy show</pre>
+                        </div>
+                    </div>
+
+                    <h3>Active Memory Plugin</h3>
+                    <div class="cmd-card" data-search="memory active plugin cross channel config">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Check active-memory config</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">cat ~/.openclaw/openclaw.json | python3 -c "
+import json, sys
+cfg = json.load(sys.stdin)
+plugins = cfg.get('plugins', {})
+mem = plugins.get('active-memory', {})
+print(json.dumps(mem, indent=2))
+"</pre>
+                        </div>
+                        <div class="cmd-note">Should show <code>"allowedChatTypes": ["direct", "channel", "group"]</code></div>
+                    </div>
+                </section>
+
+                <!-- ==================== HERMES ==================== -->
+                <section id="hermes">
+                    <h2>Hermes</h2>
+                    <p><strong>Heremes#2749</strong> — 100 slash commands, 6 skills, local Mistral via Ollama.</p>
+
+                    <div class="cmd-card" data-search="hermes config yaml view model">
+                        <div class="cmd-header">
+                            <span class="cmd-label">View Hermes config</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">cat ~/.hermes/config.yaml</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="hermes config edit modify change model">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Edit Hermes config</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">nano ~/.hermes/config.yaml</pre>
+                        </div>
+                        <div class="cmd-note">After editing, restart Hermes to apply.</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="hermes logs errors recent">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Recent Hermes logs</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">tail -100 ~/.hermes/logs/hermes.log</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="hermes logs errors only grep">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Hermes errors only</span>
+                            <span class="cmd-tag tag-danger">Errors</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">tail -500 ~/.hermes/logs/hermes.log | grep -i -E "error|failed|exception"</pre>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        <strong>Model name gotcha:</strong> Hermes config uses the raw Ollama model name (<code>mistral-small3.1</code>), NOT the prefixed version (<code>ollama/mistral-small3.1</code>). Run <code>ollama list</code> to get the exact name.
+                    </div>
+                </section>
+
+                <!-- ==================== OLLAMA ==================== -->
+                <section id="ollama">
+                    <h2>Ollama</h2>
+                    <p>Local model server — Mistral Small 3.1, Flash Attention, Q8 KV cache.</p>
+
+                    <div class="cmd-card" data-search="ollama list models pulled available">
+                        <div class="cmd-header">
+                            <span class="cmd-label">List installed models</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ollama list</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="ollama running alive api">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Is Ollama alive?</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">curl -s http://localhost:11434/api/tags | python3 -m json.tool</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="ollama test model ping chat">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Test model directly</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ollama run mistral-small3.1 "ping"</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="ollama memory usage loaded vram gpu">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Check loaded models &amp; memory</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ollama ps</pre>
+                        </div>
+                        <div class="cmd-note">Shows VRAM usage, quantization level, and time since last use.</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="ollama pull update download model">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Pull / update a model</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ollama pull mistral-small3.1</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="ollama stop unload model free memory">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Unload model (free VRAM)</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ollama stop mistral-small3.1</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== N8N ==================== -->
+                <section id="n8n">
+                    <h2>n8n Workflows</h2>
+                    <p>Workflow engine at <code>localhost:5678</code>. Version 2.8.4 — <strong>DO NOT UPGRADE</strong> (Node 25 breaks isolated-vm).</p>
+
+                    <div class="cmd-card" data-search="n8n running alive health">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Is n8n running?</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">curl -s http://localhost:5678/healthz</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="n8n open browser dashboard">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Open n8n dashboard</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">open http://localhost:5678</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="n8n env config environment">
+                        <div class="cmd-header">
+                            <span class="cmd-label">View n8n environment config</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">cat ~/.n8n/.env</pre>
+                        </div>
+                    </div>
+
+                    <h3>Workflow IDs</h3>
+                    <table class="config-table">
+                        <tr><th>Workflow</th><th>ID</th><th>Schedule</th></tr>
+                        <tr><td>AM Brief (IXON)</td><td>wBEyixfbPuIOFjgV</td><td>Mon-Fri 7:30 AM</td></tr>
+                        <tr><td>Personal AM Brief</td><td>VtkKXigtg9s1vdDS</td><td>Mon-Fri 7:00 AM</td></tr>
+                        <tr><td>PM Recap</td><td>cjvMbE8BDYB9e7WD</td><td>Mon-Fri 5:00 PM</td></tr>
+                        <tr><td>Pipeline Intelligence</td><td>EpNVTCR7hpEM7yrD</td><td>Friday 4:00 PM</td></tr>
+                        <tr><td>Daily Health Check</td><td>MZo3W30xXtB3CkwU</td><td>Daily</td></tr>
+                        <tr><td>Task Inbox</td><td>2iqd6KpmadgsGatW</td><td>Webhook</td></tr>
+                        <tr><td>Weekly Deal Strategy</td><td>nZA0AWFzBxm8eFyK</td><td>Weekly</td></tr>
+                    </table>
+
+                    <div class="callout callout-danger">
+                        <strong>ALL workflow synthesis must use <code>google/gemini-2.0-flash</code> via OpenRouter.</strong> If you see <code>claude-sonnet-4-6</code> or the Anthropic credential in any synthesis node, that's wrong and burning tokens. Fix immediately.
+                    </div>
+                </section>
+
+                <!-- ==================== LOGS ==================== -->
+                <section id="logs">
+                    <h2>Logs &amp; Debugging</h2>
+                    <p>When something breaks, start here.</p>
+
+                    <div class="cmd-card" data-search="logs openclaw recent errors jarvis">
+                        <div class="cmd-header">
+                            <span class="cmd-label">OpenClaw logs (last 10 min)</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">log show --predicate 'senderImagePath CONTAINS "openclaw"' --last 10m</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="logs all jarvis hermes system 30 minutes">
+                        <div class="cmd-header">
+                            <span class="cmd-label">All Jarvis system logs (last 30 min)</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">log show --predicate 'senderImagePath CONTAINS[cd] "jarvis" OR senderImagePath CONTAINS[cd] "hermes"' --last 30m --style compact</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="logs hermes errors tail">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Hermes errors only</span>
+                            <span class="cmd-tag tag-danger">Errors</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">tail -500 ~/.hermes/logs/hermes.log | grep -i -E "error|failed|exception|not found"</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="logs live follow watch realtime stream">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Live-follow Hermes logs</span>
+                            <span class="cmd-tag tag-info">Stream</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">tail -f ~/.hermes/logs/hermes.log</pre>
+                        </div>
+                        <div class="cmd-note">Press <code>Ctrl+C</code> to stop streaming.</div>
+                    </div>
+                </section>
+
+                <!-- ==================== HEALTH CHECKS ==================== -->
+                <section id="health">
+                    <h2>Health Checks</h2>
+                    <p>Run all of these when you suspect something is off.</p>
+
+                    <div class="cmd-card" data-search="health check full system all services comprehensive">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Full system health check</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">echo "=== OPENCLAW ===" && \
+launchctl print gui/$(id -u)/com.jarvis.openclaw-gateway 2>&1 | head -3 && \
+echo "" && echo "=== HERMES ===" && \
+launchctl print gui/$(id -u)/ai.hermes.gateway 2>&1 | head -3 && \
+echo "" && echo "=== OLLAMA ===" && \
+curl -s http://localhost:11434/api/tags | python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'  {m[\"name\"]}') for m in d.get('models',[])]" 2>&1 && \
+echo "" && echo "=== N8N ===" && \
+curl -s -o /dev/null -w "  Status: %{http_code}" http://localhost:5678/healthz && \
+echo "" && echo "=== WATCHDOGS ===" && \
+launchctl print gui/$(id -u)/com.jarvis.watchdog-hermes 2>&1 | head -2 && \
+launchctl print gui/$(id -u)/com.jarvis.watchdog-openclaw 2>&1 | head -2 && \
+echo "" && echo "=== DONE ==="</pre>
+                        </div>
+                        <div class="cmd-note">One-shot diagnostic. Copy-paste the whole thing.</div>
+                    </div>
+
+                    <div class="cmd-card" data-search="memory ram usage system resources">
+                        <div class="cmd-header">
+                            <span class="cmd-label">System memory usage</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">vm_stat | head -10 && echo "" && ollama ps</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="disk space storage nvme">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Disk space</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">df -h / | tail -1</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== MONITORING ==================== -->
+                <section id="monitoring">
+                    <h2>Monitoring One-Liners</h2>
+
+                    <div class="cmd-card" data-search="process cpu top jarvis">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Jarvis processes &amp; CPU</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ps aux | grep -i -E "openclaw|hermes|ollama|n8n" | grep -v grep</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="port listening network connections">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Active listening ports</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">lsof -i -P | grep LISTEN | grep -i -E "openclaw|hermes|ollama|n8n|node"</pre>
+                        </div>
+                    </div>
+
+                    <div class="cmd-card" data-search="backup config rsync last run">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Last backup run</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">ls -la ~/jarvis-backups/ | tail -5</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== CONFIG LOCATIONS ==================== -->
+                <section id="configs">
+                    <h2>Config File Locations</h2>
+
+                    <table class="config-table">
+                        <tr><th>File</th><th>Purpose</th></tr>
+                        <tr><td>~/.openclaw/openclaw.json</td><td>OpenClaw main config — model routing, plugins, memory, persona</td></tr>
+                        <tr><td>~/.hermes/config.yaml</td><td>Hermes config — model name, skills, slash commands</td></tr>
+                        <tr><td>~/.n8n/.env</td><td>n8n environment — DB, credentials, port</td></tr>
+                        <tr><td>~/.ollama/</td><td>Ollama model storage &amp; config</td></tr>
+                        <tr><td>~/Library/LaunchAgents/</td><td>All launchd plist files (service definitions)</td></tr>
+                        <tr><td>com.jarvis.openclaw-gateway.plist</td><td>OpenClaw service definition</td></tr>
+                        <tr><td>ai.hermes.gateway.plist</td><td>Hermes service definition</td></tr>
+                        <tr><td>com.jarvis.watchdog-hermes.plist</td><td>Hermes watchdog (120s interval)</td></tr>
+                        <tr><td>com.jarvis.watchdog-openclaw.plist</td><td>OpenClaw watchdog (120s interval)</td></tr>
+                    </table>
+                </section>
+
+                <!-- ==================== EMERGENCY ==================== -->
+                <section id="emergency">
+                    <h2>Emergency Procedures</h2>
+
+                    <div class="callout callout-danger">
+                        <strong>If Jarvis is burning API tokens:</strong> Check EVERY n8n workflow synthesis node. All should use <code>google/gemini-2.0-flash</code> via the OpenRouter credential. If you see <code>claude-sonnet-4-6</code> or the Anthropic credential, that's the leak.
+                    </div>
+
+                    <h3>Token Burn — Immediate Stop</h3>
+                    <div class="cmd-card" data-search="emergency stop kill everything shutdown">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Kill ALL Jarvis services immediately</span>
+                            <span class="cmd-tag tag-danger">Emergency</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">launchctl kill SIGTERM gui/$(id -u)/com.jarvis.openclaw-gateway && \
+launchctl kill SIGTERM gui/$(id -u)/ai.hermes.gateway && \
+echo "Both bots killed. Watchdogs may restart them in 120s."</pre>
+                        </div>
+                        <div class="cmd-note">Watchdogs will attempt restart. To fully stop, also kill watchdog plists.</div>
+                    </div>
+
+                    <h3>Model Name Mismatch</h3>
+                    <div class="cmd-card" data-search="model name mismatch ollama hermes not found">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Verify model name matches Ollama</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">echo "=== Ollama has ===" && ollama list && \
+echo "" && echo "=== Hermes expects ===" && \
+grep -i "model" ~/.hermes/config.yaml</pre>
+                        </div>
+                        <div class="cmd-note">Names must match exactly. No <code>ollama/</code> prefix in Hermes config.</div>
+                    </div>
+
+                    <h3>Memory Not Working Cross-Channel</h3>
+                    <div class="cmd-card" data-search="memory cross channel not working fix">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Check active-memory chat types</span>
+                            <span class="cmd-tag tag-check">Check</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)">cat ~/.openclaw/openclaw.json | python3 -c "
+import json, sys
+cfg = json.load(sys.stdin)
+chat_types = cfg.get('plugins',{}).get('active-memory',{}).get('config',{}).get('allowedChatTypes',[])
+print(f'allowedChatTypes: {chat_types}')
+if 'channel' not in chat_types:
+    print('MISSING: channel — cross-channel memory will not work')
+"</pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== UPGRADE ==================== -->
+                <section id="upgrade">
+                    <h2>Upgrade Guide</h2>
+
+                    <div class="callout callout-warning">
+                        <strong>Rule:</strong> Never upgrade during a fire. Stabilize first, upgrade in a calm window.
+                    </div>
+
+                    <h3>OpenClaw Upgrade</h3>
+                    <div class="cmd-card" data-search="upgrade openclaw update install latest">
+                        <div class="cmd-header">
+                            <span class="cmd-label">Upgrade OpenClaw</span>
+                            <span class="cmd-tag tag-action">Action</span>
+                        </div>
+                        <div class="cmd-body">
+                            <pre onclick="copyCmd(this)"># 1. Check current version
+openclaw --version
+
+# 2. Backup config
+cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.bak
+
+# 3. Update (check docs.openclaw.ai/install for method)
+# npm: npm update -g openclaw
+# brew: brew upgrade openclaw
+
+# 4. Verify
+openclaw --version
+
+# 5. Restart
+launchctl kickstart -k gui/$(id -u)/com.jarvis.openclaw-gateway</pre>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-danger">
+                        <strong>n8n is LOCKED at v2.8.4.</strong> Do NOT upgrade n8n. Node 25 breaks isolated-vm. This is a hard rule.
+                    </div>
+                </section>
+
+                <footer>
+                    <p>JARVIS AI Infrastructure — Built by Philip Belue</p>
+                    <p>Midnight Design System v2 — CLI Command Reference — April 13, 2026</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Click-to-copy
+        function copyCmd(el) {
+            const text = el.textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1500);
+            });
+        }
+
+        // Search filter
+        function filterCommands(query) {
+            const q = query.toLowerCase();
+            const cards = document.querySelectorAll('.cmd-card');
+            const sections = document.querySelectorAll('section');
+
+            if (!q) {
+                cards.forEach(c => c.style.display = '');
+                sections.forEach(s => s.style.display = '');
+                return;
+            }
+
+            cards.forEach(card => {
+                const searchData = (card.dataset.search || '') + ' ' +
+                    (card.querySelector('.cmd-label')?.textContent || '') + ' ' +
+                    (card.querySelector('pre')?.textContent || '');
+                card.style.display = searchData.toLowerCase().includes(q) ? '' : 'none';
+            });
+
+            sections.forEach(section => {
+                const visibleCards = section.querySelectorAll('.cmd-card:not([style*="display: none"])');
+                const hasVisibleContent = visibleCards.length > 0 ||
+                    section.querySelector('h2')?.textContent.toLowerCase().includes(q);
+                section.style.display = hasVisibleContent ? '' : 'none';
+            });
+        }
+
+        // Sidebar scroll tracking
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => link.classList.remove('active'));
+                    const activeLink = document.querySelector(`.sidebar-nav a[href="#${entry.target.id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+
+        // Keyboard shortcut: / to focus search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+    </script>
+</body>
+</html>

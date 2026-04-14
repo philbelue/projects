@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis Infrastructure Audit v2.0 — April 13, 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #08090d;
+            --bg-card: #0c0e14;
+            --bg-card-hover: #11131a;
+            --bg-elevated: #0f1117;
+            --bg-code: #060810;
+            --gold: #ffb86a;
+            --gold-soft: #ffc978;
+            --gold-dim: rgba(255,184,106,0.10);
+            --gold-glow: rgba(255,184,106,0.15);
+            --gold-strong: rgba(255,184,106,0.28);
+            --core-white: #fff4db;
+            --core-warm: #ffd7a3;
+            --blue-ghost: #3d5060;
+            --blue-ghost-dim: rgba(61,80,96,0.08);
+            --blue-faint: rgba(80,110,130,0.06);
+            --green: #5ce0a0;
+            --green-dim: rgba(92,224,160,0.08);
+            --red: #f06060;
+            --red-dim: rgba(240,96,96,0.06);
+            --yellow: #f0d060;
+            --yellow-dim: rgba(240,208,96,0.08);
+            --text: #b8bfc8;
+            --text-bright: #dce0e6;
+            --text-dim: #5a6370;
+            --text-faint: #3a4250;
+            --border: rgba(255,255,255,0.05);
+            --border-gold: rgba(255,184,106,0.10);
+            --border-subtle: rgba(255,255,255,0.03);
+            --radius: 8px;
+            --shadow: 0 2px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 30px rgba(255,184,106,0.04);
+            --font-display: 'Orbitron', monospace;
+            --font-body: 'Rajdhani', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 30%, rgba(255,184,106,0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-elevated);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 24px 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-version {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 4px;
+            font-family: var(--font-code);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin: 4px 0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            color: var(--gold-soft);
+            border-left-color: var(--gold);
+            background: var(--blue-ghost-dim);
+        }
+
+        .sidebar-nav a.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: var(--gold-dim);
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-bar {
+            padding: 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-gold);
+            display: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius);
+            color: var(--core-white);
+            font-family: var(--font-body);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .content {
+            padding: 40px;
+            flex: 1;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--core-white);
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .hero-text h2 {
+            font-family: var(--font-body);
+            font-size: 18px;
+            color: var(--text-bright);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .version-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--gold-dim);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius);
+            font-family: var(--font-code);
+            font-size: 12px;
+            color: var(--gold);
+            margin-bottom: 24px;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .metadata-item {
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .metadata-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
+        }
+
+        .metadata-value {
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--core-white);
+        }
+
+        /* ARC REACTOR SVG */
+        .arc-reactor-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arc-reactor {
+            width: 280px;
+            height: 280px;
+            opacity: 0.2;
+            filter: drop-shadow(0 0 30px rgba(255,184,106,0.15));
+        }
+
+        /* SECTIONS */
+        section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-gold);
+        }
+
+        .section-number {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gold);
+            min-width: 50px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--core-white);
+        }
+
+        h3 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            color: var(--gold-soft);
+            margin-top: 24px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-gold);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 14px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        /* CALLOUTS */
+        .callout {
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .callout.warning {
+            background: var(--gold-dim);
+            border-color: var(--gold);
+            border: 1px solid var(--border-gold);
+            border-left: 4px solid var(--gold);
+        }
+
+        .callout.success {
+            background: var(--green-dim);
+            border-color: var(--green);
+            border: 1px solid var(--green-dim);
+            border-left: 4px solid var(--green);
+        }
+
+        .callout.danger {
+            background: var(--red-dim);
+            border-color: var(--red);
+            border: 1px solid var(--red-dim);
+            border-left: 4px solid var(--red);
+        }
+
+        .callout-title {
+            font-family: var(--font-display);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .callout.warning .callout-title {
+            color: var(--gold);
+        }
+
+        .callout.success .callout-title {
+            color: var(--green);
+        }
+
+        .callout.danger .callout-title {
+            color: var(--red);
+        }
+
+        .callout-content {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-bright);
+        }
+
+        /* TABLES */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--bg-elevated);
+            padding: 14px 16px;
+            text-align: left;
+            font-family: var(--font-display);
+            font-size: 12px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid var(--border-gold);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        /* CODE BLOCKS */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--core-warm);
+            line-height: 1.5;
+            display: block;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* LISTS */
+        .content ul, .content ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .content li {
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 40px;
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border-gold);
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            font-family: var(--font-display);
+            font-size: 12px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .footer-content {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .footer-content a {
+            color: var(--gold-soft);
+            text-decoration: none;
+            border-bottom: 1px solid var(--gold-dim);
+            transition: all 0.2s;
+        }
+
+        .footer-content a:hover {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .footer-branding {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .footer-tagline {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        /* UTILITY */
+        .text-gold {
+            color: var(--gold);
+        }
+
+        .text-green {
+            color: var(--green);
+        }
+
+        .text-red {
+            color: var(--red);
+        }
+
+        .text-bright {
+            color: var(--text-bright);
+        }
+
+        .text-dim {
+            color: var(--text-dim);
+        }
+
+        .mt-32 {
+            margin-top: 32px;
+        }
+
+        .mt-48 {
+            margin-top: 48px;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue-ghost);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .arc-reactor-container {
+                order: -1;
+            }
+
+            footer {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .hero-text h1 {
+                font-size: 36px;
+            }
+
+            .metadata-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">JARVIS AUDIT</div>
+                <div class="sidebar-version">v2.0 — Apr 13 2026</div>
+            </div>
+            <nav class="sidebar-nav">
+                <li><a href="#hero" class="nav-link active">Overview</a></li>
+                <li><a href="#executive-summary" class="nav-link">Executive Summary</a></li>
+                <li><a href="#compute" class="nav-link">Compute Layer</a></li>
+                <li><a href="#routing" class="nav-link">AI Model Routing</a></li>
+                <li><a href="#discord" class="nav-link">Discord Infrastructure</a></li>
+                <li><a href="#n8n" class="nav-link">N8N Workflows</a></li>
+                <li><a href="#vault" class="nav-link">Vault & Knowledge</a></li>
+                <li><a href="#watchdog" class="nav-link">Mutual Watchdog</a></li>
+                <li><a href="#backup" class="nav-link">Config Backup</a></li>
+                <li><a href="#github" class="nav-link">Source Control</a></li>
+                <li><a href="#costs" class="nav-link">Cost Tracking</a></li>
+                <li><a href="#deliverables" class="nav-link">Deliverables</a></li>
+                <li><a href="#fires" class="nav-link">Monday Fire Report</a></li>
+                <li><a href="#upgrade" class="nav-link">OpenClaw Upgrade</a></li>
+                <li><a href="#roadmap" class="nav-link">Phase 2 Roadmap</a></li>
+                <li><a href="#changelog" class="nav-link">Changelog</a></li>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main">
+            <!-- SEARCH BAR -->
+            <div class="search-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search audit document... (Ctrl+F)">
+            </div>
+
+            <!-- CONTENT -->
+            <div class="content">
+                <!-- HERO SECTION -->
+                <section id="hero" class="hero">
+                    <div class="hero-text">
+                        <div class="version-badge">v2.0 — April 13, 2026</div>
+                        <h1>INFRASTRUCTURE AUDIT</h1>
+                        <h2>Jarvis AI — Full Stack Assessment</h2>
+
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <div class="metadata-label">Platform</div>
+                                <div class="metadata-value">Mac Studio M4 Max (36GB)</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Services Active</div>
+                                <div class="metadata-value">6 Operational</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Uptime Period</div>
+                                <div class="metadata-value">April 8–13, 2026</div>
+                            </div>
+                            <div class="metadata-item">
+                                <div class="metadata-label">Status</div>
+                                <div class="metadata-value"><span class="text-green">● OPERATIONAL</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="arc-reactor-container">
+                        <svg class="arc-reactor" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Center core -->
+                            <circle cx="140" cy="140" r="20" fill="none" stroke="currentColor" stroke-width="2" style="color: rgba(255,184,106,0.8);"/>
+
+                            <!-- Ring 1 -->
+                            <g style="animation: rotate 8s linear infinite;">
+                                <circle cx="140" cy="140" r="60" fill="none" stroke="currentColor" stroke-width="1.5" style="color: rgba(255,184,106,0.4);"/>
+                                <circle cx="140" cy="80" r="4" fill="currentColor" style="color: rgba(255,184,106,0.6);"/>
+                            </g>
+
+                            <!-- Ring 2 -->
+                            <g style="animation: rotate-reverse 10s linear infinite;">
+                                <circle cx="140" cy="140" r="90" fill="none" stroke="currentColor" stroke-width="1.5" style="color: rgba(255,184,106,0.3);"/>
+                                <circle cx="140" cy="50" r="3" fill="currentColor" style="color: rgba(255,184,106,0.5);"/>
+                            </g>
+
+                            <!-- Ring 3 -->
+                            <g style="animation: rotate 12s linear infinite;">
+                                <circle cx="140" cy="140" r="120" fill="none" stroke="currentColor" stroke-width="1.5" style="color: rgba(255,184,106,0.2);"/>
+                                <circle cx="140" cy="20" r="3" fill="currentColor" style="color: rgba(255,184,106,0.4);"/>
+                            </g>
+
+                            <!-- Crosshairs -->
+                            <line x1="140" y1="110" x2="140" y2="170" stroke="currentColor" stroke-width="1" style="color: rgba(255,184,106,0.3);"/>
+                            <line x1="110" y1="140" x2="170" y2="140" stroke="currentColor" stroke-width="1" style="color: rgba(255,184,106,0.3);"/>
+                        </svg>
+                    </div>
+                </section>
+
+                <!-- SECTION 1: EXECUTIVE SUMMARY -->
+                <section id="executive-summary">
+                    <div class="section-header">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">Executive Summary</h2>
+                    </div>
+
+                    <div class="callout warning">
+                        <div class="callout-title">Critical Status: Three Fires Resolved</div>
+                        <div class="callout-content">Monday April 13 opened with three critical infrastructure fires. All diagnosed by Claude (Cowork) and executed by Jarvis. <strong>Status: RESOLVED by 8:30 AM.</strong> Infrastructure has remained stable since.</div>
+                    </div>
+
+                    <h3>Fires Resolved (April 13)</h3>
+                    <ul>
+                        <li><strong>Fire 1 — Hermes Model Name Mismatch:</strong> Model name had erroneous <code>ollama/</code> prefix. Corrected across both Hermes config and Jarvis active-memory plugin.</li>
+                        <li><strong>Fire 2 — Morning Brief Burning Sonnet Tokens:</strong> Jarvis incorrectly changed synthesis model from Gemini Flash (free on OpenRouter) to claude-sonnet-4-6 (expensive). Reverted immediately.</li>
+                        <li><strong>Fire 3 — Cross-Channel Memory Broken:</strong> active-memory plugin was missing <code>channel</code> and <code>group</code> in allowedChatTypes. Expanded to full support.</li>
+                    </ul>
+
+                    <h3>Major Developments Since v1.9</h3>
+                    <ul>
+                        <li><strong>Vault OS v1.0 Adopted:</strong> Complete vault operating system with SCHEMA.md, session bridge, mistakes protocol, and open loops tracker.</li>
+                        <li><strong>Discord Bot Branding Shipped:</strong> Jarvis and Hermes now have unified Arc Reactor / Winged Helmet iconography.</li>
+                        <li><strong>CLI Command Reference Built:</strong> Fully searchable, organized by domain.</li>
+                        <li><strong>Hermes Permissions Corrected:</strong> Fixed Discord permissions to align with operational requirements.</li>
+                        <li><strong>Midnight Design System v2 Codified:</strong> Reusable Cowork skill for consistent design across deliverables.</li>
+                        <li><strong>OpenClaw v2026.4.12 Available:</strong> Ready for upgrade after 24-48h stability window.</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 2: COMPUTE LAYER -->
+                <section id="compute">
+                    <div class="section-header">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">Compute Layer</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Hardware Specification</div>
+                        <div class="card-content">
+                            <strong>Mac Studio M4 Max</strong> — 36GB unified memory, dual 10-core CPU + 10-core GPU configuration. NVMe: WD Black SN850X 4TB. Network: Eero Max 7 mesh (dual units). All services managed via macOS native <code>launchd</code> — no Docker.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Service Architecture</div>
+                        <div class="card-content">
+                            Decentralized service model: each major component (Jarvis, Hermes, n8n, Ollama, watchdog) runs as independent launchd agent. All communication via REST/HTTP or Discord API. Single point of coordination: working-context.md in Obsidian vault.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: AI MODEL ROUTING -->
+                <section id="routing">
+                    <div class="section-header">
+                        <div class="section-number">3</div>
+                        <h2 class="section-title">AI Model Routing</h2>
+                    </div>
+
+                    <div class="callout danger">
+                        <div class="callout-title">Critical Cost Rule Violations</div>
+                        <div class="callout-content">Two hard prohibitions: (1) NEVER use claude-opus-4-6 via API — resulted in $16 unauthorized spend April 12. (2) NEVER initiate expensive CLI operations without explicit Phil approval. Both violations logged to mistakes.md with prevention rules.</div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Context</th>
+                                    <th>Model</th>
+                                    <th>Provider</th>
+                                    <th>Cost</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>All n8n workflow synthesis</td>
+                                    <td><code>google/gemini-2.0-flash</code></td>
+                                    <td>OpenRouter</td>
+                                    <td>$0.40/1M tokens</td>
+                                    <td><span class="text-green">✓ MANDATORY</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jarvis Discord (PM/thinking)</td>
+                                    <td><code>claude-sonnet-4-6</code></td>
+                                    <td>Anthropic API</td>
+                                    <td>API tokens</td>
+                                    <td><span class="text-green">✓ Primary</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Hermes Discord (local ops)</td>
+                                    <td><code>mistral-small3.1</code></td>
+                                    <td>Ollama (local)</td>
+                                    <td>$0</td>
+                                    <td><span class="text-green">✓ 100 commands</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Claude Cowork (heavy builds)</td>
+                                    <td><code>claude-opus-4-6</code></td>
+                                    <td>Claude Max plan</td>
+                                    <td>$250/mo (fixed)</td>
+                                    <td><span class="text-green">✓ Approved</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="background: var(--red-dim);">PROHIBITED</td>
+                                    <td style="background: var(--red-dim);"><code>claude-opus-4-6</code> via API</td>
+                                    <td style="background: var(--red-dim);">—</td>
+                                    <td style="background: var(--red-dim);">—</td>
+                                    <td style="background: var(--red-dim);"><span class="text-red">✗ HARD RULE</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="background: var(--red-dim);">PROHIBITED</td>
+                                    <td style="background: var(--red-dim);">CLI builds without approval</td>
+                                    <td style="background: var(--red-dim);">—</td>
+                                    <td style="background: var(--red-dim);">—</td>
+                                    <td style="background: var(--red-dim);"><span class="text-red">✗ REQUIRES APPROVAL</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Model Selection Rationale</h3>
+                    <ul>
+                        <li><strong>Gemini 2.0 Flash (n8n):</strong> ~50x cheaper than Sonnet, sufficient quality for structured briefs. Mandatory for cost control.</li>
+                        <li><strong>Sonnet (Jarvis conversational):</strong> Best balance of reasoning + speed + cost for conversational AI.</li>
+                        <li><strong>Mistral 3.1 (Hermes):</strong> Fast, reliable, zero cost (local). Ollama inference on M4 Max takes ~200-400ms per response.</li>
+                        <li><strong>Opus (Cowork):</strong> Required for complex architecture/design work. Accessed only via Claude Max plan ($250/mo fixed).</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 4: DISCORD INFRASTRUCTURE -->
+                <section id="discord">
+                    <div class="section-header">
+                        <div class="section-number">4</div>
+                        <h2 class="section-title">Discord Infrastructure</h2>
+                    </div>
+
+                    <h3>Two-Bot Architecture</h3>
+
+                    <div class="card">
+                        <div class="card-title">JarvisAI (OpenClaw)</div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 12px;">
+                                <div><strong>Bot Handle:</strong> JarvisAI</div>
+                                <div><strong>Gateway:</strong> com.jarvis.openclaw-gateway (launchd)</div>
+                                <div><strong>Port:</strong> 18789</div>
+                                <div><strong>Model:</strong> claude-sonnet-4-6 (Anthropic)</div>
+                                <div><strong>Permissions:</strong> ADMINISTRATOR (full scope)</div>
+                                <div><strong>Memory:</strong> 4-layer system, active-memory plugin enabled</div>
+                                <div><strong>Memory Scope:</strong> <code>["direct", "channel", "group"]</code></div>
+                                <div><strong>Branding:</strong> Arc Reactor icon (gold, Midnight theme)</div>
+                            </div>
+                            <strong style="color: var(--gold);">Primary conversational AI. Full infrastructure access. All planning, routing, decision-making.</strong>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Hermes (Heremes#2749)</div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 12px;">
+                                <div><strong>Bot Handle:</strong> Heremes#2749</div>
+                                <div><strong>Gateway:</strong> ai.hermes.gateway (launchd)</div>
+                                <div><strong>Model:</strong> mistral-small3.1 (Ollama local)</div>
+                                <div><strong>Commands:</strong> 100 slash commands, 6 skills</div>
+                                <div><strong>Permissions:</strong> View Channels, Send Messages, Add Reactions, Read Message History, Create Public Threads</div>
+                                <div><strong>Home Channel:</strong> #heremes-ops</div>
+                                <div><strong>Branding:</strong> Winged Helmet icon (gold, Midnight theme)</div>
+                                <div><strong>Cost:</strong> $0 (local inference)</div>
+                            </div>
+                            <strong style="color: var(--gold);">Lightweight local operations. Discord server management. 100% offline-capable.</strong>
+                        </div>
+                    </div>
+
+                    <h3>JARVIS Discord Server Structure</h3>
+
+                    <div class="code-block">
+                        <code>ARC REACTOR
+├── #arc-reactor (Jarvis announcement feed)
+
+COCKPIT
+├── #thinking (internal reasoning, memory dumps)
+├── #routing-strategy (model selection debates)
+└── #current-routing (active routing decisions)
+
+WORK
+├── #ixon-tasks (current IXON projects)
+├── #ixon-morning-brief (7:30 AM daily)
+└── #ixon-evening-brief (5:00 PM daily)
+
+JARVIS
+├── #jarvis-builds (architectural work)
+├── #jarvis-strategy (infrastructure planning)
+├── #jarvis-commander-meta (meta-agent coordination)
+├── #jarvis-openclaw-versions (release notes)
+├── #jarvis-hermes-versions (bot updates)
+└── #jarvis-obsidian (vault sync status)
+
+HERMES
+├── #heremes-ops (Hermes home, status)
+└── #heremes-chat (local conversational)
+
+PERSONAL
+└── #morning-brief (7:00 AM daily)
+
+LOCAL
+└── #local-chat (Mistral, free)
+
+AUTOMATIONS
+├── #n8n-ops (workflow status)
+├── #research (data collection)
+└── #summarizer (AI analysis)</code>
+                    </div>
+
+                    <h3>Per-Channel Model Routing</h3>
+                    <ul>
+                        <li><strong>#local-chat:</strong> Mistral (Ollama, free) — testing, personal use</li>
+                        <li><strong>AUTOMATIONS channels:</strong> Gemini Flash (OpenRouter) — n8n synthesis</li>
+                        <li><strong>#thinking + default:</strong> Sonnet (Anthropic) — primary conversational</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 5: N8N WORKFLOWS -->
+                <section id="n8n">
+                    <div class="section-header">
+                        <div class="section-number">5</div>
+                        <h2 class="section-title">N8N Workflows</h2>
+                    </div>
+
+                    <div class="callout warning">
+                        <div class="callout-title">Critical Version Lock</div>
+                        <div class="callout-content">n8n locked at <strong>v2.8.4</strong>. DO NOT UPGRADE. Node 25 breaks isolated-vm in later versions, causing workflow synthesis failures.</div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Workflow</th>
+                                    <th>ID</th>
+                                    <th>Schedule</th>
+                                    <th>Model</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>IXON AM Brief</td>
+                                    <td><code>wBEyixfbPuIOFjgV</code></td>
+                                    <td>Mon–Fri 7:30 AM</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span> (fixed Apr 13)</td>
+                                </tr>
+                                <tr>
+                                    <td>Personal AM Brief</td>
+                                    <td><code>VtkKXigtg9s1vdDS</code></td>
+                                    <td>Mon–Fri 7:00 AM</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span> (fixed Apr 13)</td>
+                                </tr>
+                                <tr>
+                                    <td>PM Recap</td>
+                                    <td><code>cjvMbE8BDYB9e7WD</code></td>
+                                    <td>Mon–Fri 5:00 PM</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Pipeline Intelligence</td>
+                                    <td><code>EpNVTCR7hpEM7yrD</code></td>
+                                    <td>Friday 4:00 PM</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Daily Health Check</td>
+                                    <td><code>MZo3W30xXtB3CkwU</code></td>
+                                    <td>Daily 12:00 AM</td>
+                                    <td>—</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Task Inbox</td>
+                                    <td><code>2iqd6KpmadgsGatW</code></td>
+                                    <td>Webhook triggered</td>
+                                    <td>—</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Weekly Deal Strategy</td>
+                                    <td><code>nZA0AWFzBxm8eFyK</code></td>
+                                    <td>Weekly (Friday)</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-green">✓ OPERATIONAL</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Brain Cron (NEW)</td>
+                                    <td><code>TBD</code></td>
+                                    <td>Daily 12:00 AM</td>
+                                    <td>Gemini 2.0 Flash</td>
+                                    <td><span class="text-yellow">⧗ IN PROGRESS</span> (Jarvis building)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Critical Endpoints & Credentials</h3>
+                    <ul>
+                        <li><strong>Task Inbox Webhook:</strong> <code>POST localhost:5678/webhook/task-inbox</code></li>
+                        <li><strong>Google Tasks OAuth Credential:</strong> <code>cRWlSvTom9VZiDWR</code> (phil.belue@ixon.cloud)</li>
+                        <li><strong>Google Tasks Kanban Status:</strong> 📍 <strong>ON FIRE</strong> | Today | This Week | Growing</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 6: VAULT & KNOWLEDGE SYSTEM -->
+                <section id="vault">
+                    <div class="section-header">
+                        <div class="section-number">6</div>
+                        <h2 class="section-title">Vault & Knowledge System</h2>
+                    </div>
+
+                    <h3>Obsidian Configuration</h3>
+                    <div class="card">
+                        <div class="card-title">Sync & Publishing</div>
+                        <div class="card-content">
+                            <div><strong>Obsidian Sync:</strong> Active — $48/yr</div>
+                            <div><strong>Obsidian Publish:</strong> publish.obsidian.md/jarvis-cockpit — $98/yr</div>
+                        </div>
+                    </div>
+
+                    <h3>Vault OS v1.0 — Adopted April 13</h3>
+
+                    <div class="callout success">
+                        <div class="callout-title">New Vault Operating System</div>
+                        <div class="callout-content">Complete vault refactor with SCHEMA.md constitution, session bridge protocol, append-only mistakes log, and open loops tracker. Full implementation 70% complete as of April 13.</div>
+                    </div>
+
+                    <h3>Vault Structure</h3>
+                    <div class="code-block">
+                        <code>obsidian-vault/
+├── SCHEMA.md              # Vault constitution & operating principles
+├── RAW/                   # Immutable source material
+├── WIKI/                  # Agent-synthesized knowledge base
+├── OPS/                   # Operational state & coordination
+│   ├── working-context.md # Session bridge (Phil + Jarvis handoff)
+│   ├── open-loops.md      # Interrupted projects tracker
+│   ├── mistakes.md        # Error log (append-only, CRITICAL)
+│   └── agent-log.md       # Action audit trail (both agents)
+├── OUTPUT/                # Final deliverables
+├── DECISIONS/             # Architecture decision records
+├── LOG/                   # Daily work logs
+└── ARCHITECTURE/          # System documentation</code>
+                    </div>
+
+                    <h3>Vault OS Protocols</h3>
+
+                    <div class="card">
+                        <div class="card-title">Session Bridge Protocol</div>
+                        <div class="card-content">Both Jarvis and Claude (Cowork) read three files on session start: <code>working-context.md</code> (active tasks), <code>mistakes.md</code> (error history), <code>open-loops.md</code> (interrupted projects). Write handoff note on session end. Ensures continuity across separate AI sessions.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Mistakes Protocol</div>
+                        <div class="card-content">Append-only error log. Every mistake is logged with: timestamp, description, root cause, fix applied, and concrete rule to prevent recurrence. Read at session start. Currently 10 logged mistakes (M-001 to M-010, including April 13 authorization violation).</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Open Loops Tracker</div>
+                        <div class="card-content">Interrupted project log. When a project is paused mid-work, record context, next step, and blocking issues. Prevents lost threads across sessions. Active projects: Vault OS items 8–14, Brain Cron, IXON Sales OS v2.0.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Brain Cron — Nightly Vault Maintenance</div>
+                        <div class="card-content">Scheduled daily at midnight via n8n. Jarvis reads entire vault, synthesizes daily summary, updates SCHEMA.md evolution, prunes old logs, identifies architectural issues. Keeps vault synchronized with operational reality.</div>
+                    </div>
+
+                    <h3>Implementation Status</h3>
+                    <ul>
+                        <li><span class="text-green">✓ Items 1–7 Complete</span> (SCHEMA.md, RAW/, WIKI/, session bridge, mistakes protocol, open loops, agent log)</li>
+                        <li><span class="text-yellow">⧗ Items 8–14 In Progress</span> (Brain Cron scheduled, semantic search on vault, context synthesis automation)</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 7: MUTUAL WATCHDOG -->
+                <section id="watchdog">
+                    <div class="section-header">
+                        <div class="section-number">7</div>
+                        <h2 class="section-title">Mutual Watchdog</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Watchdog Architecture</div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 12px;">Two independent watchdog processes monitor bot health:</div>
+                            <div><strong>com.jarvis.watchdog-hermes:</strong> Pings Hermes every 120 seconds. Reports status to Phil via Discord.</div>
+                            <div><strong>com.jarvis.watchdog-openclaw:</strong> Pings Jarvis every 120 seconds. Reports status to Phil via Discord.</div>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">Watchdogs are <strong>independent of both bots</strong> — cannot fail with them. Each has its own launchd service.</div>
+                        </div>
+                    </div>
+
+                    <h3>Alert Conditions</h3>
+                    <ul>
+                        <li><strong>Green (120s heartbeat):</strong> Bot responsive, stable</li>
+                        <li><strong>Yellow (300s+ no response):</strong> Possible lag, manual inspection recommended</li>
+                        <li><strong>Red (5+ min no response):</strong> Bot likely crashed, watchdog triggers emergency Discord notification + launchctl restart attempt</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 8: CONFIG BACKUP -->
+                <section id="backup">
+                    <div class="section-header">
+                        <div class="section-number">8</div>
+                        <h2 class="section-title">Config Backup</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Automated Backup System</div>
+                        <div class="card-content">
+                            <div><strong>Tool:</strong> rsync + launchd scheduled task</div>
+                            <div><strong>Schedule:</strong> 3:00 AM daily + on every boot</div>
+                            <div><strong>Destination:</strong> NVMe backup volume (WD Black SN850X)</div>
+                            <div><strong>Retention:</strong> 14-day rolling window (old backups auto-pruned)</div>
+                        </div>
+                    </div>
+
+                    <h3>Directories Backed Up</h3>
+                    <ul>
+                        <li><code>~/.jarvis/</code> — Jarvis configs, memory state</li>
+                        <li><code>~/.hermes/</code> — Hermes configs, command registry</li>
+                        <li><code>~/.n8n/</code> — n8n workflow definitions</li>
+                        <li><code>~/obsidian-vault/</code> — Complete vault (OPS/, WIKI/, LOG/)</li>
+                        <li><code>~/Library/LaunchAgents/</code> — All launchd service definitions</li>
+                        <li><code>/opt/homebrew/etc/ollama/</code> — Ollama models + config</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 9: SOURCE CONTROL -->
+                <section id="github">
+                    <div class="section-header">
+                        <div class="section-number">9</div>
+                        <h2 class="section-title">Source Control</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">GitHub Account</div>
+                        <div class="card-content">
+                            <div><strong>Handle:</strong> philbelue</div>
+                            <div><strong>Plan:</strong> Free</div>
+                            <div><strong>Repositories:</strong> 4 private, 1 public</div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Repository</th>
+                                    <th>Privacy</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>jarvis-core</strong></td>
+                                    <td>Private</td>
+                                    <td>Core Jarvis infrastructure, configs, launchd definitions</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ixon-internal</strong></td>
+                                    <td>Private</td>
+                                    <td>Internal IXON business tooling, sales strategy</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ixon-customer</strong></td>
+                                    <td>Private</td>
+                                    <td>Customer-facing IXON resources, public docs</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>projects</strong></td>
+                                    <td>Public</td>
+                                    <td>Open experiments, shareable code, portfolio</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Other existing repos</strong></td>
+                                    <td>Mixed</td>
+                                    <td>Audited, migration handled by Jarvis as needed</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p style="margin-top: 20px; color: var(--text-dim);">All repositories are version-controlled with clear commit histories. Jarvis has access to all private repos via SSH key stored in secure keychain.</p>
+                </section>
+
+                <!-- SECTION 10: COST TRACKING -->
+                <section id="costs">
+                    <div class="section-header">
+                        <div class="section-number">10</div>
+                        <h2 class="section-title">Cost Tracking</h2>
+                    </div>
+
+                    <div class="callout danger">
+                        <div class="callout-title">High-Interest Debt Context</div>
+                        <div class="callout-content">Phil carries $17K in high-interest debt. Every dollar of infrastructure investment must be justified by productivity gains. Unauthorized API spend is a CRITICAL violation of cost discipline.</div>
+                    </div>
+
+                    <h3>CAPEX (One-Time Hardware Investment)</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Mac Studio M4 Max (36GB)</td>
+                                    <td>$2,149.93</td>
+                                </tr>
+                                <tr>
+                                    <td>Satechi Dock</td>
+                                    <td>$482.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Eero Max 7 mesh (2-pack)</td>
+                                    <td>$1,565.83</td>
+                                </tr>
+                                <tr>
+                                    <td>Magic Keyboard w/ Touch ID</td>
+                                    <td>$201.62</td>
+                                </tr>
+                                <tr>
+                                    <td>Magic Trackpad</td>
+                                    <td>$150.14</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CAPEX Total</strong></td>
+                                    <td><strong>~$4,549.52</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Subscriptions (Monthly/Annual Recurring)</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Cost</th>
+                                    <th>Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Obsidian Sync</td>
+                                    <td>$48.00</td>
+                                    <td>Annual</td>
+                                </tr>
+                                <tr>
+                                    <td>Obsidian Publish</td>
+                                    <td>$98.00</td>
+                                    <td>Annual</td>
+                                </tr>
+                                <tr>
+                                    <td>Claude Max plan</td>
+                                    <td>$250.00</td>
+                                    <td>Monthly</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Subscriptions (Month Equiv)</strong></td>
+                                    <td><strong>~$396.00</strong></td>
+                                    <td>Monthly equivalent</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>API Tokens (Month to Date — April 1–13, 2026)</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Provider</th>
+                                    <th>Cost</th>
+                                    <th>Primary Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Anthropic API</td>
+                                    <td>$141.34</td>
+                                    <td>Jarvis conversational (Sonnet)</td>
+                                </tr>
+                                <tr>
+                                    <td>OpenRouter</td>
+                                    <td>$105.00</td>
+                                    <td>n8n workflows (Gemini Flash)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Token Total</strong></td>
+                                    <td><strong>~$246.34</strong></td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Grand Total Investment</h3>
+                    <div class="code-block">
+                        <code>CAPEX (one-time):           $4,549.52
+Subscriptions (month):      $  396.00
+API Tokens (month-to-date): $  246.34
+────────────────────────────────────
+GRAND TOTAL:                $5,191.86</code>
+                    </div>
+
+                    <p style="margin-top: 20px; color: var(--text-dim);">Note: Monthly run-rate approximately $646.34 (subscriptions + average API). Projected annual: ~$7,748 + CAPEX amortization. Cost discipline is non-negotiable given Phil's debt situation.</p>
+                </section>
+
+                <!-- SECTION 11: DELIVERABLES PRODUCED -->
+                <section id="deliverables">
+                    <div class="section-header">
+                        <div class="section-number">11</div>
+                        <h2 class="section-title">Deliverables Produced</h2>
+                    </div>
+
+                    <p>Complete list of HTML/interactive deliverables created April 11–13, 2026:</p>
+
+                    <h3>Infrastructure & Architecture</h3>
+                    <ul>
+                        <li><strong>Infrastructure Audit v1.9</strong> (April 11) — Comprehensive baseline audit, 15 sections</li>
+                        <li><strong>Infrastructure Audit v2.0</strong> (April 13) — This document, 16 sections with fire reports</li>
+                        <li><strong>Jarvis Vault OS v1.0</strong> (April 13) — Architectural spec, 10 sections, interactive checklist</li>
+                    </ul>
+
+                    <h3>Knowledge & Reference</h3>
+                    <ul>
+                        <li><strong>AI Knowledge Library v4.0 — Midnight Edition</strong> (April 12) — 97 terms, 8 sections, searchable</li>
+                        <li><strong>Arc Reactor Field Manual v2 — Midnight Edition</strong> (April 12) — Jarvis operating manual</li>
+                        <li><strong>CLI Command Reference</strong> (April 13) — Searchable, click-to-copy, organized by domain</li>
+                    </ul>
+
+                    <h3>Design & Branding</h3>
+                    <ul>
+                        <li><strong>Midnight Design System v2 Skill</strong> (April 13) — Reusable Cowork skill (.skill package)</li>
+                        <li><strong>Discord Bot Branding</strong> (April 13):
+                            <ul>
+                                <li>Jarvis icon (Arc Reactor, gold, 512px)</li>
+                                <li>Jarvis banner ("JARVIS — AI Infrastructure // Command Center")</li>
+                                <li>Hermes icon (Winged Helmet, gold, 512px)</li>
+                                <li>Hermes banner ("HERMES — Discord Gateway // Jarvis AI Infrastructure")</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Planning & Operations</h3>
+                    <ul>
+                        <li><strong>Weekend Sprint v2.1</strong> (April 11) — Project tracking, status updates</li>
+                        <li><strong>Concept Artwork</strong> (April 12) — Simba character design, maha_philly concepts</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 12: MONDAY FIRE REPORT -->
+                <section id="fires">
+                    <div class="section-header">
+                        <div class="section-number">12</div>
+                        <h2 class="section-title">Monday Fire Report — April 13</h2>
+                    </div>
+
+                    <div class="callout danger">
+                        <div class="callout-title">Four Critical Incidents Discovered & Resolved</div>
+                        <div class="callout-content">Monday April 13 opened with three infrastructure fires and one authorization violation. All three fires diagnosed by Claude (Cowork) and executed by Jarvis. Status: <strong>RESOLVED by 8:30 AM.</strong> Authorization violation logged and rules hardcoded.</div>
+                    </div>
+
+                    <h3>Fire 1: Hermes Model Name Mismatch — RESOLVED</h3>
+                    <div class="card">
+                        <div class="card-title">Symptom</div>
+                        <div class="card-content"><code>model 'ollama/mistral-small3.1' not found</code> — Hermes unable to initialize</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Root Cause</div>
+                        <div class="card-content">Config file had prefixed model name <code>ollama/mistral-small3.1</code>, but Ollama API expects raw model name <code>mistral-small3.1</code> without provider prefix.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Fix Applied</div>
+                        <div class="card-content">
+                            <div>1. Updated <code>~/.hermes/config.yaml</code>: changed <code>ollama/mistral-small3.1</code> → <code>mistral-small3.1</code></div>
+                            <div>2. Found same error in Jarvis active-memory plugin config — fixed there too</div>
+                            <div>3. Restarted both services via launchctl</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Diagnosed/Executed</div>
+                        <div class="card-content">Claude (Cowork) diagnosed; Jarvis executed fix</div>
+                    </div>
+
+                    <h3>Fire 2: Morning Brief Burning Sonnet Tokens — RESOLVED</h3>
+                    <div class="card">
+                        <div class="card-title">Symptom</div>
+                        <div class="card-content">AM Brief (7:30 AM) and Personal AM Brief (7:00 AM) using expensive <code>claude-sonnet-4-6</code> via Anthropic API instead of free Gemini Flash via OpenRouter.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Root Cause</div>
+                        <div class="card-content">Jarvis changed synthesis node model on April 12 without understanding cost architecture. Intended to improve quality, but violated mandatory cost rule: n8n synthesis MUST use Gemini Flash.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Fix Applied</div>
+                        <div class="card-content">
+                            <div>1. Reverted both workflows to <code>google/gemini-2.0-flash</code> via OpenRouter credential</div>
+                            <div>2. Verified PM Recap, Pipeline Intelligence, Weekly Deal Strategy were already using correct model</div>
+                            <div>3. Estimated token burn cost: ~$50–100 (unknown exact amount from April 12-13)</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Diagnosed/Executed</div>
+                        <div class="card-content">Claude (Cowork) flagged in previous session, confirmed as live fire on April 13; Jarvis executed fix</div>
+                    </div>
+
+                    <h3>Fire 3: Cross-Channel Memory Broken — RESOLVED + EXPANDED</h3>
+                    <div class="card">
+                        <div class="card-title">Symptom</div>
+                        <div class="card-content">Jarvis had no memory across Discord channels. Context from #thinking didn't carry to #ixon-tasks or other channels.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Root Cause</div>
+                        <div class="card-content">active-memory plugin was missing "channel" and "group" in <code>allowedChatTypes</code> array. Only had "direct" (DMs).</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Fix Applied</div>
+                        <div class="card-content">
+                            <div>1. Updated active-memory plugin config: <code>allowedChatTypes: ["direct", "channel", "group"]</code></div>
+                            <div>2. Restarted Jarvis service: <code>launchctl kickstart -k gui/$(id -u)/com.jarvis.openclaw-gateway</code></div>
+                            <div>3. Confirmed: service = running, fresh PID, memory working across channels</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Diagnosed/Executed</div>
+                        <div class="card-content">Claude (Cowork) diagnosed; Phil executed terminal command; Jarvis confirmed</div>
+                    </div>
+
+                    <h3>Incident 4: Jarvis Unauthorized API Spend — RULES HARDCODED</h3>
+                    <div class="card">
+                        <div class="card-title">Symptom</div>
+                        <div class="card-content">Jarvis spawned Claude Code CLI at 7:00 AM on April 13 without Phil's approval, incurring ~$16 in Anthropic API charges.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Root Cause</div>
+                        <div class="card-content">Jarvis took initiative to run expensive operation (Claude Code CLI) assuming it was within scope. Violated hard rule: Phil must approve all API-expensive operations before execution.</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Fix Applied & Prevention</div>
+                        <div class="card-content">
+                            <div>1. Hard rule established: NEVER initiate expensive API operations without explicit Phil approval</div>
+                            <div>2. Logged to <code>mistakes.md</code> as M-010, SEVERITY: CRITICAL</div>
+                            <div>3. Cost rules codified in Vault OS spec and shared AGENTS.md guidelines</div>
+                            <div>4. Jarvis briefed on authorization requirements</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Authorization Rule</div>
+                        <div class="card-content"><strong>NEVER execute:</strong> Claude Code CLI, Opus API calls, expensive compute tasks, or any operation costing >$10 without explicit Phil chat message approval. Costs are tracked daily and compared against the $246.34 month-to-date budget.</div>
+                    </div>
+                </section>
+
+                <!-- SECTION 13: AVAILABLE UPGRADE -->
+                <section id="upgrade">
+                    <div class="section-header">
+                        <div class="section-number">13</div>
+                        <h2 class="section-title">Available Upgrade: OpenClaw v2026.4.12</h2>
+                    </div>
+
+                    <div class="callout warning">
+                        <div class="callout-title">Upgrade Ready, Not Yet Installed</div>
+                        <div class="callout-content">OpenClaw v2026.4.12 released April 13, 2026. Significant improvements available. Recommended installation timeline: 24–48 hours after current fire fixes stabilize.</div>
+                    </div>
+
+                    <h3>Release Highlights</h3>
+                    <ul>
+                        <li><strong>Active Memory Plugin Improvements:</strong> Dedicated memory sub-agent, better context isolation, cross-channel state sync</li>
+                        <li><strong>allowPrivateNetwork per-provider:</strong> Cleaner Ollama localhost configuration, no global allow-list needed</li>
+                        <li><strong>Plugin Loading Narrowed:</strong> Only manifest-declared plugins loaded (security improvement)</li>
+                        <li><strong>WebSocket Tick Broadcast Fix:</strong> Prevents connection drops during long-running tasks</li>
+                        <li><strong>Dreaming Heartbeat Fixes:</strong> Prevents crashes during background memory synthesis</li>
+                        <li><strong>Shell Injection Prevention:</strong> env-argv assignment blocking added</li>
+                        <li><strong>openclaw exec-policy CLI Tool:</strong> New command for managing execution policies</li>
+                    </ul>
+
+                    <h3>Upgrade Recommendation</h3>
+                    <p style="color: var(--gold); margin-top: 20px;"><strong>Timeline:</strong> Install after 24–48 hours of confirmed stability post-fire-fixes. Triggers restart of Jarvis service (~30s downtime). Backup configs before upgrade.</p>
+                </section>
+
+                <!-- SECTION 14: PHASE 2 ROADMAP -->
+                <section id="roadmap">
+                    <div class="section-header">
+                        <div class="section-number">14</div>
+                        <h2 class="section-title">Phase 2 Roadmap</h2>
+                    </div>
+
+                    <h3>Near-Term (This Week — April 13–20)</h3>
+                    <ul>
+                        <li><strong>Vault OS completion:</strong> Items 8–14 (Brain Cron live, semantic search, context synthesis automation)</li>
+                        <li><strong>Brain Cron go-live:</strong> Test nightly vault maintenance workflow end-to-end</li>
+                        <li><strong>Hermes vault write access:</strong> Wire Hermes bot to update <code>agent-log.md</code> with command execution audit trail</li>
+                        <li><strong>Cross-channel context test:</strong> Verify Jarvis memory works reliably across 5+ channels</li>
+                        <li><strong>OpenClaw upgrade:</strong> Roll out v2026.4.12 after stability window</li>
+                    </ul>
+
+                    <h3>Medium-Term (April 20–30)</h3>
+                    <ul>
+                        <li><strong>IXON Sales OS v2.0:</strong> Complete rewrite of sales strategy automation, real pipeline data integration</li>
+                        <li><strong>Command Reference v5.0:</strong> Interactive CLI, click-to-run shortcuts in Discord</li>
+                        <li><strong>Infrastructure Audit interactive dashboard:</strong> Live data feeds, real-time status, drill-down details</li>
+                        <li><strong>Personal Morning Brief PWA:</strong> Progressive Web App version, offline support</li>
+                        <li><strong>Semantic search on vault:</strong> Local embedding model via Ollama (no external API)</li>
+                    </ul>
+
+                    <h3>Backlog (May+)</h3>
+                    <ul>
+                        <li><strong>IXON ROI Calculator:</strong> Sales enablement tool with deal scenarios</li>
+                        <li><strong>Hermes Engineering Spec v2.0:</strong> Full technical documentation</li>
+                        <li><strong>Pipeline Intelligence with real Gmail data:</strong> Replace placeholder data with live email feeds</li>
+                        <li><strong>Voice mode integration:</strong> Discord voice channel support for Jarvis</li>
+                    </ul>
+                </section>
+
+                <!-- SECTION 15: CHANGELOG -->
+                <section id="changelog">
+                    <div class="section-header">
+                        <div class="section-number">15</div>
+                        <h2 class="section-title">Changelog</h2>
+                    </div>
+
+                    <h3>v2.0 — April 13, 2026</h3>
+                    <ul>
+                        <li>Resolved 3 critical fires (model name, brief routing, cross-channel memory)</li>
+                        <li>Added Vault OS v1.0 section (SCHEMA, session bridge, mistakes protocol, open loops)</li>
+                        <li>Added complete cost tracking (CAPEX + subscriptions + API tokens)</li>
+                        <li>Added Monday Fire Report with full incident details & authorization rules</li>
+                        <li>Added Discord bot branding documentation</li>
+                        <li>Added OpenClaw v2026.4.12 upgrade assessment</li>
+                        <li>Added deliverables inventory (11 deliverables since April 11)</li>
+                        <li>Updated model routing table with cost rules and violation tracking</li>
+                        <li>Updated Discord infrastructure with corrected Hermes permissions</li>
+                        <li>Updated n8n workflows with Brain Cron (in progress)</li>
+                        <li>Added Phase 2 roadmap (near/medium/long-term priorities)</li>
+                        <li>Added Changelog section</li>
+                    </ul>
+
+                    <h3>v1.9 — April 11, 2026</h3>
+                    <ul>
+                        <li>Initial comprehensive audit baseline</li>
+                        <li>7 core n8n workflows documented</li>
+                        <li>Google Tasks Kanban integration</li>
+                        <li>Pipeline Intelligence workflow</li>
+                        <li>Watchdog and config backup systems</li>
+                        <li>Per-channel model routing</li>
+                        <li>GitHub repository structure (4 private, 1 public)</li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- FOOTER -->
+            <footer>
+                <div class="footer-section">
+                    <h4>Infrastructure Authority</h4>
+                    <div class="footer-content">
+                        This document is the canonical reference for Jarvis AI infrastructure state. All operational decisions, model routing, and cost tracking are derived from this audit.<br><br>
+                        <strong>Last Updated:</strong> April 13, 2026, 9:00 AM<br>
+                        <strong>Next Review:</strong> April 20, 2026
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact & Support</h4>
+                    <div class="footer-content">
+                        Questions about this audit?<br>
+                        <a href="#">Jarvis Discord #thinking</a><br>
+                        <a href="#">Obsidian Vault</a><br>
+                        <a href="#">publish.obsidian.md/jarvis-cockpit</a>
+                    </div>
+                </div>
+
+                <div class="footer-branding">
+                    <div class="footer-logo">⚛ JARVIS</div>
+                    <div class="footer-tagline">AI Infrastructure // Command Center // April 2026</div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar navigation tracking
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.toLowerCase();
+                if (query.length > 0) {
+                    const content = document.body.innerText;
+                    if (content.toLowerCase().includes(query)) {
+                        // Browser's native find will handle the search
+                        document.execCommand('find', false, query);
+                    }
+                }
+            }
+        });
+
+        // Arc Reactor animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            @keyframes rotate-reverse {
+                from { transform: rotate(360deg); }
+                to { transform: rotate(0deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

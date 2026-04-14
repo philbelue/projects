@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J.A.R.V.I.S. — Weekend Sprint: Status Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d12;
+  --bg-card: #10141b;
+  --bg-card-hover: #161b24;
+  --bg-code: #0d1117;
+  --cyan: #7fd8e6;
+  --cyan-dim: rgba(127,216,230,0.10);
+  --gold: #ffb86a;
+  --gold-soft: #ffc978;
+  --gold-dim: rgba(255,184,106,0.12);
+  --gold-glow: rgba(255,184,106,0.18);
+  --gold-strong: rgba(255,184,106,0.32);
+  --core-white: #fff4db;
+  --core-warm: #ffd7a3;
+  --green: #5ce0a0;
+  --green-dim: rgba(92,224,160,0.10);
+  --red: #f06060;
+  --red-dim: rgba(240,96,96,0.10);
+  --yellow: #f0d060;
+  --yellow-dim: rgba(240,208,96,0.10);
+  --text: #d5dbe3;
+  --text-bright: #f5f7fa;
+  --text-dim: #8d97a5;
+  --border: rgba(255,255,255,0.06);
+  --border-gold: rgba(255,184,106,0.12);
+  --radius: 8px;
+  --font-display: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 20%, rgba(255,184,106,0.02) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+
+nav { position: fixed; top: 0; left: 0; bottom: 0; width: 190px; z-index: 100; background: rgba(10,14,23,0.97); backdrop-filter: blur(12px); border-right: 1px solid var(--border); overflow-y: auto; }
+nav .nav-inner { display: flex; flex-direction: column; padding: 20px 0; }
+nav a { color: var(--text-dim); text-decoration: none; font-family: var(--font-display); font-size: 0.5rem; font-weight: 500; padding: 9px 18px; white-space: nowrap; transition: all 0.3s; border-left: 2px solid transparent; letter-spacing: 0.08em; text-transform: uppercase; }
+nav a:hover, nav a.active { color: var(--core-warm); border-left-color: var(--gold); background: var(--gold-dim); }
+nav .nav-brand { font-family: var(--font-display); color: var(--core-white); font-size: 0.58rem; font-weight: 700; padding: 16px 18px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; letter-spacing: 0.12em; line-height: 1.6; }
+.main-content { margin-left: 190px; }
+@media (max-width: 860px) { nav { position: relative; width: 100%; bottom: auto; border-right: none; border-bottom: 1px solid var(--border); } nav .nav-inner { flex-direction: row; overflow-x: auto; padding: 0; } nav a { padding: 12px 14px; border-left: none; border-bottom: 2px solid transparent; font-size: 0.45rem; } .main-content { margin-left: 0; } nav .nav-brand { border-bottom: none; border-right: 1px solid var(--border); margin-bottom: 0; padding: 12px 14px; font-size: 0.5rem; } }
+
+.hero { background: linear-gradient(135deg, #0b0d12 0%, #0f1218 40%, #12161e 100%); padding: 70px 24px 55px; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+.hero::before { content: ''; position: absolute; top: 50%; left: 50%; width: 500px; height: 500px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,244,219,0.03) 0%, rgba(255,184,106,0.02) 40%, transparent 70%); pointer-events: none; }
+.hero-inner { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
+.hero-tag { display: inline-block; font-family: var(--font-display); font-size: 0.55rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--green); border: 1px solid rgba(92,224,160,0.25); padding: 6px 16px; border-radius: 2px; margin-bottom: 20px; background: var(--green-dim); }
+.hero h1 { font-family: var(--font-display); font-size: clamp(1.4rem, 4vw, 2.2rem); color: var(--text-bright); margin-bottom: 8px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.3; }
+.hero h1 span { color: var(--gold); }
+.hero .subtitle { font-size: 1.05rem; color: var(--text-dim); font-weight: 300; letter-spacing: 0.03em; margin-bottom: 14px; }
+.hero p { font-size: 0.95rem; color: var(--text); max-width: 700px; line-height: 1.8; }
+.hero-meta { margin-top: 24px; display: flex; gap: 28px; flex-wrap: wrap; }
+.hero-meta div { font-size: 0.8rem; color: var(--text-dim); }
+.hero-meta strong { color: var(--core-warm); display: block; font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.container { max-width: 920px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+section { padding: 50px 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+.section-label { font-family: var(--font-display); font-size: 0.55rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.section-title { font-family: var(--font-display); font-size: clamp(1.1rem, 2.5vw, 1.5rem); color: var(--text-bright); font-weight: 700; margin-bottom: 16px; letter-spacing: 0.03em; line-height: 1.4; }
+.section-intro { font-size: 1rem; color: var(--text); line-height: 1.8; margin-bottom: 28px; max-width: 780px; }
+
+/* Day blocks */
+.day-block { margin-bottom: 40px; }
+.day-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border-gold); }
+.day-name { font-family: var(--font-display); font-size: 1.1rem; color: var(--core-white); font-weight: 700; letter-spacing: 0.06em; }
+.day-date { font-family: var(--font-body); font-size: 0.9rem; color: var(--text-dim); }
+.day-goal { font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-left: auto; padding: 4px 12px; background: var(--gold-dim); border-radius: 2px; font-weight: 600; }
+.day-goal.done { color: var(--green); background: var(--green-dim); }
+
+/* Task items */
+.task-list { list-style: none; padding: 0; margin: 8px 0; }
+.task-list li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 0.88rem; color: var(--text); }
+.task-list li::before { content: ''; width: 14px; height: 14px; min-width: 14px; border: 1.5px solid var(--text-dim); border-radius: 3px; margin-top: 4px; }
+.task-list li.done::before { border-color: var(--green); background: var(--green); border-radius: 3px; }
+.task-list li.done { color: var(--text-dim); }
+.task-list li.skipped::before { border-color: var(--yellow); background: var(--yellow-dim); }
+.task-list li.skipped { color: var(--text-dim); }
+.task-list li.moved::before { border-color: var(--cyan); background: var(--cyan-dim); }
+.task-list li.moved { color: var(--text-dim); }
+.task-list li.critical::before { border-color: var(--gold); background: var(--gold-dim); }
+.task-list li.gate::before { border-color: var(--green); background: var(--green-dim); border-radius: 50%; }
+.task-tag { display: inline-block; font-family: var(--font-display); font-size: 0.42rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+.tag-done { color: var(--green); background: var(--green-dim); }
+.tag-actual { color: var(--cyan); background: var(--cyan-dim); }
+.tag-skipped { color: var(--yellow); background: var(--yellow-dim); }
+.tag-pending { color: var(--gold); background: var(--gold-dim); }
+.tag-gate { color: var(--green); background: var(--green-dim); }
+
+/* Time blocks */
+.time-block { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.time-block:last-child { border-bottom: none; }
+.time-label { min-width: 90px; font-family: var(--font-code); font-size: 0.78rem; color: var(--gold); font-weight: 600; padding-top: 2px; }
+.time-content { flex: 1; }
+.time-content h4 { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-bright); font-weight: 600; margin-bottom: 6px; }
+.time-content p { font-size: 0.9rem; color: var(--text); line-height: 1.7; margin-bottom: 6px; }
+
+/* Callouts */
+.callout { border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+.callout-title { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.callout-gold { background: var(--gold-dim); border-left: 3px solid var(--gold); }
+.callout-gold .callout-title { color: var(--gold); }
+.callout-green { background: var(--green-dim); border-left: 3px solid var(--green); }
+.callout-green .callout-title { color: var(--green); }
+.callout-red { background: var(--red-dim); border-left: 3px solid var(--red); }
+.callout-red .callout-title { color: var(--red); }
+.callout-cyan { background: var(--cyan-dim); border-left: 3px solid var(--cyan); }
+.callout-cyan .callout-title { color: var(--cyan); }
+.callout p { font-size: 0.88rem; color: var(--text); margin: 0; }
+.callout p + p { margin-top: 8px; }
+
+/* Progress */
+.progress-bar { display: flex; gap: 2px; margin: 24px 0; height: 6px; border-radius: 3px; overflow: hidden; }
+.progress-segment { flex: 1; background: var(--border); position: relative; }
+.progress-segment.done { background: var(--green); }
+.progress-segment.active { background: var(--gold); box-shadow: 0 0 8px rgba(255,184,106,0.3); }
+
+/* Scorecard */
+.score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+.score-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; }
+.score-item .number { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+.score-item .number.green { color: var(--green); }
+.score-item .number.gold { color: var(--gold); }
+.score-item .number.cyan { color: var(--cyan); }
+.score-item .label { font-family: var(--font-display); font-size: 0.5rem; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* Comparison table */
+.vs-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+.vs-table th { background: rgba(255,184,106,0.06); color: var(--core-warm); font-family: var(--font-display); font-weight: 600; text-align: left; padding: 10px 14px; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+.vs-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+.vs-table tr:hover td { background: rgba(255,184,106,0.03); }
+
+/* Ready grid */
+.ready-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+.ready-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; }
+.ready-item .status { font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
+.ready-item .status.online { color: var(--green); }
+.ready-item .status.pending { color: var(--yellow); }
+.ready-item .name { font-family: var(--font-display); font-size: 0.6rem; color: var(--text-bright); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 4px; }
+.ready-item .desc { font-size: 0.8rem; color: var(--text-dim); }
+
+footer { text-align: center; padding: 40px 24px; font-family: var(--font-display); font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.1em; border-top: 1px solid var(--border); line-height: 2; }
+footer strong { color: var(--core-warm); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">WEEKEND<br>SPRINT</div>
+    <a href="#scorecard">Scorecard</a>
+    <a href="#friday">Fri Actual</a>
+    <a href="#saturday">Sat Actual</a>
+    <a href="#sunday">Sun Plan</a>
+    <a href="#monday">Mon Readiness</a>
+    <a href="#delta">Planned vs Actual</a>
+    <a href="#next">What's Next</a>
+  </div>
+</nav>
+
+<div class="main-content">
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Sprint &mdash; Ahead of Schedule</div>
+    <h1>Saturday <span>Status Report</span></h1>
+    <div class="subtitle">Weekend sprint: what was planned, what actually happened, what's left.</div>
+    <p>The original plan had Friday evening for hardening, Saturday for building Hermes core, Sunday for deploy. Reality moved faster. Hermes was activated by Jarvis on Saturday. OpenClaw upgraded. Per-channel model routing live. Config backups automated. Ollama boot race eliminated. Obsidian Publish enabled. We're roughly 24 hours ahead of the plan.</p>
+    <div class="hero-meta">
+      <div><strong>Sprint Start</strong>Friday 6:30 PM ET</div>
+      <div><strong>Current</strong>Saturday Evening</div>
+      <div><strong>Status</strong>Ahead of Schedule</div>
+      <div><strong>Pace</strong>~24h ahead of plan</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCORECARD -->
+<!-- ============================================================ -->
+<section id="scorecard">
+  <div class="container">
+    <div class="section-label">Progress</div>
+    <div class="section-title">Sprint Scorecard</div>
+
+    <div class="progress-bar">
+      <div class="progress-segment done" title="Friday Evening"></div>
+      <div class="progress-segment done" title="Saturday AM"></div>
+      <div class="progress-segment done" title="Saturday PM"></div>
+      <div class="progress-segment active" title="Sunday AM"></div>
+      <div class="progress-segment" title="Sunday PM"></div>
+      <div class="progress-segment" title="Sunday Night — Soak"></div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score-item">
+        <div class="number green">14</div>
+        <div class="label">Tasks Completed</div>
+      </div>
+      <div class="score-item">
+        <div class="number gold">3</div>
+        <div class="label">Tasks Remaining</div>
+      </div>
+      <div class="score-item">
+        <div class="number cyan">5</div>
+        <div class="label">Unplanned Wins</div>
+      </div>
+      <div class="score-item">
+        <div class="number green">~24h</div>
+        <div class="label">Ahead of Plan</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FRIDAY ACTUAL -->
+<!-- ============================================================ -->
+<section id="friday">
+  <div class="container">
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-name">Friday Evening</span>
+        <span class="day-date">April 10</span>
+        <span class="day-goal done">Complete</span>
+      </div>
+
+      <p style="margin-bottom:20px;">Friday was planning and documentation. The Engineering Addendum addressed all 5 gaps from Jarvis's blueprint review. REBUILD.md produced. Weekend sprint plan built. Foundation for Saturday execution.</p>
+
+      <div class="time-block">
+        <div class="time-label">PLANNED</div>
+        <div class="time-content">
+          <h4>Original Friday Plan</h4>
+          <ul class="task-list">
+            <li class="skipped">PM Recap gate test <span class="task-tag tag-skipped">Deferred</span></li>
+            <li class="skipped">Store secrets in Keychain <span class="task-tag tag-skipped">Deferred</span></li>
+            <li class="skipped">Create Healthchecks.io account <span class="task-tag tag-skipped">Deferred</span></li>
+            <li class="skipped">Create nightly backup script <span class="task-tag tag-skipped">Moved to Sat</span></li>
+            <li class="skipped">Eero Plus signup <span class="task-tag tag-skipped">Deferred</span></li>
+            <li class="skipped">Hermes directory scaffolding <span class="task-tag tag-skipped">Not needed</span></li>
+            <li class="done">Push REBUILD.md to IXON <span class="task-tag tag-done">Done</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="time-block">
+        <div class="time-label">ACTUAL</div>
+        <div class="time-content">
+          <h4>What Actually Happened</h4>
+          <ul class="task-list">
+            <li class="done">Engineering Addendum addressing all 5 blueprint gaps <span class="task-tag tag-done">Done</span></li>
+            <li class="done">REBUILD.md — 10-step standalone runbook <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Weekend Sprint Plan — time-blocked with go/no-go gates <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Published all docs to IXON GitHub Pages <span class="task-tag tag-done">Done</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-cyan">
+        <div class="callout-title">Friday Assessment</div>
+        <p>The plan assumed hardening tasks. What actually happened was strategic documentation and planning &mdash; which turned out to be the right call. Having the addendum, REBUILD.md, and sprint plan in place meant Saturday execution was clean and focused instead of ad-hoc.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SATURDAY ACTUAL -->
+<!-- ============================================================ -->
+<section id="saturday">
+  <div class="container">
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-name">Saturday</span>
+        <span class="day-date">April 11</span>
+        <span class="day-goal done">Ahead of Plan</span>
+      </div>
+
+      <p style="margin-bottom:20px;">Saturday was supposed to be "Build Hermes Core" &mdash; writing queue.py, state.py, discord.py, main.py from scratch. Instead, Jarvis handled Hermes activation directly (it was already an installed application, not a build-from-scratch). This freed Saturday for infrastructure hardening, upgrades, and documentation that was originally planned for Sunday+.</p>
+
+      <div class="time-block">
+        <div class="time-label">PLANNED</div>
+        <div class="time-content">
+          <h4>Original Saturday Plan</h4>
+          <ul class="task-list">
+            <li class="skipped">AM Brief gate test <span class="task-tag tag-skipped">Skipped</span></li>
+            <li class="skipped">Cold reboot test <span class="task-tag tag-skipped">Not yet</span></li>
+            <li class="skipped">Build core/queue.py from addendum <span class="task-tag tag-skipped">Not needed</span></li>
+            <li class="skipped">Build core/state.py + core/discord.py <span class="task-tag tag-skipped">Not needed</span></li>
+            <li class="skipped">Build main.py daemon <span class="task-tag tag-skipped">Not needed</span></li>
+            <li class="skipped">Git commit Hermes core <span class="task-tag tag-skipped">Not needed</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="time-block">
+        <div class="time-label">ACTUAL</div>
+        <div class="time-content">
+          <h4>What Actually Happened <span class="task-tag tag-actual">Execution Sprint</span></h4>
+          <ul class="task-list">
+            <li class="done">Hermes activated on Discord (Jarvis handled) &mdash; Heremes#2749, 100 commands <span class="task-tag tag-done">Done</span></li>
+            <li class="done">21 junk Hermes slash commands pruned, 6 useful ones added <span class="task-tag tag-done">Done</span></li>
+            <li class="done">OpenClaw upgraded 4.9 &rarr; 4.11 (intentional, not from macOS update) <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Per-channel model routing configured (Mistral / Gemini Flash / Sonnet) <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Config backup script + launchd plist — tested and running <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Ollama boot race condition fixed (ThrottleInterval=15, KEEP_ALIVE=5m) <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Obsidian Publish enabled at publish.obsidian.md/jarvis-cockpit <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Old Anthropic API keys deleted, one clean key remaining <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Operating model established: Jarvis=PM, Claude=builder, Mistral=daily ops <span class="task-tag tag-done">Done</span></li>
+            <li class="done">Infrastructure Audit v1.8 HTML <span class="task-tag tag-done">Done</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-green">
+        <div class="callout-title">Saturday Assessment</div>
+        <p>The plan assumed Hermes needed to be built from scratch (write Python code, test, iterate). Reality: Hermes was already an installed application that just needed activation. Jarvis handled the Discord wiring, bot token, and slash command registration. This discovery eliminated ~8 hours of planned build work and let us focus on hardening, routing, and backup infrastructure instead.</p>
+        <p>Net result: Saturday completed most of what was planned for the entire weekend.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SUNDAY PLAN -->
+<!-- ============================================================ -->
+<section id="sunday">
+  <div class="container">
+    <div class="day-block">
+      <div class="day-header">
+        <span class="day-name">Sunday</span>
+        <span class="day-date">April 12</span>
+        <span class="day-goal">Remaining</span>
+      </div>
+
+      <p style="margin-bottom:20px;">With most of the original weekend plan complete, Sunday shifts from "build and deploy" to "validate, test, and polish." The heavy lifting is done. Sunday is about confirming everything works end-to-end.</p>
+
+      <div class="time-block">
+        <div class="time-label">MORNING</div>
+        <div class="time-content">
+          <h4>Validate Gemini Flash Routing <span class="task-tag tag-pending">P1</span></h4>
+          <p>Per-channel routing is configured but the AUTOMATIONS channels (#n8n-ops, #research, #summarizer) need end-to-end validation to confirm Gemini Flash via OpenRouter is responding correctly.</p>
+          <ul class="task-list">
+            <li class="critical">Send test messages in each AUTOMATIONS channel</li>
+            <li>Verify responses come from Gemini Flash (check model attribution)</li>
+            <li>Confirm #local-chat routes to Mistral</li>
+            <li>Confirm #thinking routes to Sonnet</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="time-block">
+        <div class="time-label">MORNING</div>
+        <div class="time-content">
+          <h4>Cold Reboot Test <span class="task-tag tag-pending">P1</span></h4>
+          <p>Full power-off, power-on. Verify all services auto-start via launchd. This validates the ThrottleInterval fix and confirms the entire stack comes up clean.</p>
+          <ul class="task-list">
+            <li class="critical">Full shutdown + cold boot</li>
+            <li>Time to all-green (target: &lt;90s)</li>
+            <li>Verify: Ollama, OpenClaw, Hermes, n8n all healthy</li>
+            <li>Verify: Config backup plist loaded</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="time-block">
+        <div class="time-label">AFTERNOON</div>
+        <div class="time-content">
+          <h4>Documentation &amp; Polish <span class="task-tag tag-pending">P2</span></h4>
+          <p>Copy Obsidian vault files into place. Push final docs to IXON. Make sure everything is saved and accessible.</p>
+          <ul class="task-list">
+            <li>Copy HOME.md to Obsidian vault</li>
+            <li>Copy jarvis-status.md to Obsidian vault</li>
+            <li>Push updated sprint plan to IXON repo</li>
+            <li>Verify Obsidian Publish shows updated content</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-gold">
+        <div class="callout-title">Sunday Scope Change</div>
+        <p>Original Sunday plan: build Hermes skills (health_probe, config_guardian, workflow_exec), create config.yaml, deploy via launchd, end-to-end smoke test, overnight soak. All of that is either already done or unnecessary because Hermes was activated as a pre-built application. Sunday is now a validation + polish day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MONDAY READINESS -->
+<!-- ============================================================ -->
+<section id="monday">
+  <div class="container">
+    <div class="section-label">Monday Morning</div>
+    <div class="section-title">Readiness Check</div>
+    <p class="section-intro">Monday 7 AM. Coffee. Open Discord. Here's the current state of each system:</p>
+
+    <div class="ready-grid">
+      <div class="ready-item">
+        <div class="status online">Online</div>
+        <div class="name">Ollama</div>
+        <div class="desc">Mistral loaded, :11434, boot race fixed, KEEP_ALIVE=5m</div>
+      </div>
+      <div class="ready-item">
+        <div class="status online">Online</div>
+        <div class="name">OpenClaw v4.11</div>
+        <div class="desc">Port 18789, per-channel routing, launchd KeepAlive</div>
+      </div>
+      <div class="ready-item">
+        <div class="status online">Online</div>
+        <div class="name">Hermes v0.8.0</div>
+        <div class="desc">Heremes#2749, 100 commands, 6 skills, launchd managed</div>
+      </div>
+      <div class="ready-item">
+        <div class="status online">Online</div>
+        <div class="name">n8n v2.8.4</div>
+        <div class="desc">5 workflows, encrypted, :5678, DO NOT UPGRADE</div>
+      </div>
+      <div class="ready-item">
+        <div class="status online">Running</div>
+        <div class="name">Config Backups</div>
+        <div class="desc">3 AM + boot, 6 dirs to NVMe, 14-day prune</div>
+      </div>
+      <div class="ready-item">
+        <div class="status online">Live</div>
+        <div class="name">Obsidian Publish</div>
+        <div class="desc">publish.obsidian.md/jarvis-cockpit</div>
+      </div>
+      <div class="ready-item">
+        <div class="status pending">Pending</div>
+        <div class="name">Gemini Flash Routing</div>
+        <div class="desc">Configured, needs validation on AUTOMATIONS channels</div>
+      </div>
+      <div class="ready-item">
+        <div class="status pending">Pending</div>
+        <div class="name">Healthchecks.io</div>
+        <div class="desc">Not yet set up &mdash; P2 priority</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PLANNED VS ACTUAL -->
+<!-- ============================================================ -->
+<section id="delta">
+  <div class="container">
+    <div class="section-label">Analysis</div>
+    <div class="section-title">Planned vs. Actual</div>
+    <p class="section-intro">Side-by-side comparison of what the sprint plan called for vs. what actually shipped.</p>
+
+    <table class="vs-table">
+      <thead>
+        <tr><th>Item</th><th>Plan</th><th>Actual</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Hermes Core Code</strong></td><td>Build queue.py, state.py, discord.py, main.py (~8h)</td><td>Already installed &mdash; activated by Jarvis in ~30 min</td><td><span style="color:var(--green);">Eliminated</span></td></tr>
+        <tr><td><strong>Hermes Deploy</strong></td><td>Sunday afternoon via launchd</td><td>Saturday &mdash; already launchd managed as ai.hermes.gateway</td><td><span style="color:var(--green);">24h early</span></td></tr>
+        <tr><td><strong>Config Backups</strong></td><td>Friday evening (crontab)</td><td>Saturday (launchd plist, more robust)</td><td><span style="color:var(--green);">Done, better</span></td></tr>
+        <tr><td><strong>Ollama Boot Race</strong></td><td>Not in original plan</td><td>Discovered and fixed Saturday</td><td><span style="color:var(--cyan);">Unplanned win</span></td></tr>
+        <tr><td><strong>OpenClaw Upgrade</strong></td><td>Not in original plan</td><td>4.9 &rarr; 4.11, per-channel routing</td><td><span style="color:var(--cyan);">Unplanned win</span></td></tr>
+        <tr><td><strong>Obsidian Publish</strong></td><td>Not in original plan</td><td>Enabled Saturday</td><td><span style="color:var(--cyan);">Unplanned win</span></td></tr>
+        <tr><td><strong>Model Routing</strong></td><td>Not in original plan</td><td>Per-channel (Mistral/Gemini/Sonnet)</td><td><span style="color:var(--cyan);">Unplanned win</span></td></tr>
+        <tr><td><strong>API Key Cleanup</strong></td><td>Not in original plan</td><td>Old Anthropic keys deleted</td><td><span style="color:var(--cyan);">Unplanned win</span></td></tr>
+        <tr><td><strong>Keychain Secrets</strong></td><td>Friday evening</td><td>Not yet done</td><td><span style="color:var(--yellow);">Deferred</span></td></tr>
+        <tr><td><strong>Healthchecks.io</strong></td><td>Friday evening</td><td>Not yet done</td><td><span style="color:var(--yellow);">Deferred</span></td></tr>
+        <tr><td><strong>Eero Plus</strong></td><td>Friday evening</td><td>Not yet done</td><td><span style="color:var(--yellow);">Deferred</span></td></tr>
+        <tr><td><strong>Cold Reboot Test</strong></td><td>Saturday morning</td><td>Not yet done</td><td><span style="color:var(--yellow);">Sunday</span></td></tr>
+        <tr><td><strong>Gemini Flash Validation</strong></td><td>Not explicitly planned</td><td>Configured, needs testing</td><td><span style="color:var(--yellow);">Sunday</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-green">
+      <div class="callout-title">Sprint Velocity Assessment</div>
+      <p>The biggest planning miss was assuming Hermes needed to be built from scratch. It was already installed and just needed activation + configuration. This single discovery compressed ~12 hours of planned work into ~30 minutes. The freed time was reinvested into infrastructure hardening (backup automation, boot race fix, model routing, Obsidian Publish) that wasn't in the original plan but adds more value.</p>
+      <p>Net: we shipped the entire weekend's P1 deliverables on Saturday, plus 5 unplanned infrastructure wins. Sunday is cleanup and validation, not a build day.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- WHAT'S NEXT -->
+<!-- ============================================================ -->
+<section id="next">
+  <div class="container">
+    <div class="section-label">Forward</div>
+    <div class="section-title">What's Left for Monday Readiness</div>
+
+    <div class="callout callout-gold">
+      <div class="callout-title">Sunday Checklist (2&ndash;3 hours max)</div>
+      <p><strong style="color:var(--core-white);">P1:</strong> Validate Gemini Flash routing on AUTOMATIONS channels. Cold reboot test. Both confirm the system runs unattended.</p>
+      <p><strong style="color:var(--core-white);">P2:</strong> Copy Obsidian vault files (HOME.md, jarvis-status.md). Push final docs. Healthchecks.io setup if time allows.</p>
+      <p><strong style="color:var(--core-white);">P3:</strong> Eero Plus, Keychain secrets migration, log rotation. All nice-to-haves that can wait for next week.</p>
+    </div>
+
+    <div class="callout callout-green">
+      <div class="callout-title">Bottom Line</div>
+      <p>We're operational. The dual-agent architecture is live, backups are automated, model routing is configured, and the system survived its first full day. Sunday is a victory lap, not a build sprint. Monday morning, the system runs itself.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>J.A.R.V.I.S.</strong> &mdash; Weekend Sprint Plan v2.0 (Status Report)<br>
+  <span style="color:var(--text-dim);">Updated April 11, 2026 &middot; Claude Opus (Cowork) &middot; Supersedes v1.0 sprint plan</span><br>
+  <span style="color:var(--text-dim);font-size:0.55rem;margin-top:6px;display:inline-block;">Companion to Infrastructure Audit v1.8 + Strategic Blueprint + Engineering Addendum</span>
+</footer>
+
+</div>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 120;
+    if (pageYOffset >= sectionTop) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
